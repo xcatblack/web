@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+	<title>xcat</title>
+	<meta charset='UTF=8'>
+	<link rel='stylesheet' href='styles.css'>
+	<link rel='icon' type='image/x-icon' href='images/favicon_a.ico'>
+</head>
+
+<body>
+
+	<div class='guides'>
+		<p><b>This guide covers installing Apache Spark. It is assumed</p>
+		<p>that the previous guides (Installing Hadoop, Hive) were completed.</b></p>
+		<br>
+		<p>We begin by installing scala:</p>
+		<pre>
+			sudo apt install scala
+		</pre>
+		<p>Again, there is not much more to cover if the Hadoop installation</p>
+		<p>steps were followed. Just be sure that /opt/spark contains Spark</p>
+		<p>files, and that .bashrc contains Spark options. We will use the</p>
+		<p>"startmaster" command alias to start the Spark master:</p>
+		<pre>
+			startmaster
+			jps
+		</pre>
+		<p>The jps output should show "Master" running. Great job, now we'll</p>
+		<p>use the "startworker" command alias:</p>
+		<pre>
+			startworker
+			jps
+		</pre>
+		<p>Similar to before, jps should show the "Worker" process running.</p>
+		<p>Awesome, that is it! Data may now be processed in your</p>
+		<p>Hadoop/Hive/Spark Big Data environment.</p>
+		<br>
+		<a style='font-size:3em' href='index.html'><b>Home</b></a>
+
+	</div>
+
+</body>
+</html>

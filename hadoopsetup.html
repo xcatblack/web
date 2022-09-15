@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<head>
+	<title>xcat</title>
+	<meta charset='UTF=8'>
+	<link rel='stylesheet' href='styles.css'>
+	<link rel='icon' type='image/x-icon' href='images/favicon_a.ico'>
+</head>
+
+<body>
+
+	<div class='guides' style='padding-bottom: 6rem'>
+		<b><p>This is a guide to setup Apache Hadoop locally on a debian linux server.</p>
+			<p>Hive and Spark are covered in other guides; it is recommended to install</p>
+			<p>them after installing Hadoop.</p>
+			<p>sudo, ssh, vim, and java are required to be installed.</p>
+			<p>Cluster configuration may be added at a later date.</p></b>
+	</div>
+	
+	<br>
+	
+
+	<div class='guides'>
+		<p>The first step is to make sure that the OS environment is configured properly.</p>
+		<p>Mainly, configure Java and ssh. We'll start with ssh.</p>
+		<p>**</p>
+		<br>
+		<p>We need to be able to ssh into localhost. To do that, we will create a key pair</p>
+		<p>and then add the public key to the authorized_hosts file. It is set without a</p>
+		<p>password in order to enable passwordless login.</p>
+
+		<br>
+		<div id='code'>
+			<xmp>
+			<p>ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa</p>
+			<p>cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</p>
+			<p>chmod 0600 ~/.ssh/authorized_keys</p>
+			</xmp>
+		</div>
+		<br>
+
+		<p>Now we will set up Java. Keep in mind that these steps here are only relevant to</p>
+		<p>Debian linux; openjdk-8 is required for Hadoop/Spark and it is not available from</p>
+		<p>the stable Debian repository. Snapshots will be installed instead.</p>
+		<p>First, cd into the home directory. Directions will be slightly different for ARM devices.</p>
+
+		<br>
+		<div id='code'>
+			<xmp>
+			mkdir sources
+			mkdir sources/openjdk-8
+			cd sources/openjdk-8
+			wget https://snapshot.debian.org/archive/debian-security/20220210T090326Z/pool/updates/main/o/openjdk-8/openjdk-8-jdk_8u322-b06-1~deb9u1_amd64.deb
+			wget https://snapshot.debian.org/archive/debian-security/20220210T090326Z/pool/updates/main/o/openjdk-8/openjdk-8-jdk-headless_8u322-b06-1~deb9u1_amd64.deb
+			wget https://snapshot.debian.org/archive/debian-security/20220210T090326Z/pool/updates/main/o/openjdk-8/openjdk-8-jre_8u322-b06-1~deb9u1_amd64.deb
+			wget https://snapshot.debian.org/archive/debian-security/20220210T090326Z/pool/updates/main/o/openjdk-8/openjdk-8-jre-headless_8u322-b06-1~deb9u1_amd64.deb
+			sudo dpkg -i *.deb
+			sudo apt install --fix-broken
+			java -version
+			</xmp>
+		</div>
+		<br>
+		<p>java -version should output "openjdk version "1.8.0_322"" if the installation was successful.</p>
+		<br>
+
+		<p>The next step in the process is to set up .bashrc. Provided here is the code needed</p>
+		<p>to append to ~/.bashrc file:</p>
+		<div id='code'>
+			<xmp>
+		alias startdfs='$HADOOP_HOME/sbin/start-dfs.sh'
+		alias stopdfs='$HADOOP_HOME/sbin/stop-dfs.sh'
+		alias startyarn='$HADOOP_HOME/sbin/start-yarn.sh'
+		alias stopyarn='$HADOOP_HOME/sbin/stop-yarn.sh'
+		alias startmaster='$SPARK_HOME/sbin/start-master.sh'
+		alias stopmaster='$SPARK_HOME/sbin/stop-master.sh'
+		alias startworker='$SPARK_HOME/sbin/start-worker.sh spark://localhost:7077'
+		alias startworkers='$SPARK_HOME/sbin/start-workers.sh spark://localhost:7077'
+		alias stopworker='$SPARK_HOME/sbin/stop-worker.sh'
+		alias stopworkers='$SPARK_HOME/sbin/stop-workers.sh'
+		
+		# Java
+		export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+		# Hadoop
+		export HADOOP_HOME=/opt/hadoop
+		export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+
+		# Hive
+		export HIVE_HOME=/opt/hive
+
+		# Spark
+		export SPARK_HOME=/opt/spark
+
+		# PySpark
+		export PYSPARK_PYTHON=/usr/bin/python3
+
+		# PATH
+		export PATH=$HADOOP_HOME/bin:$HIVE_HOME/bin:$SPARK_HOME/bin:$SPARK_HOME/sbin:$JAVA_HOME/bin:$PATH
+		</xmp>
+
+		</div>
+
+		<p>Exit the text editor and use the "source ~/.bashrc" command.</p>
+
+		<br>
+
+		<p>Next comes the retrieval and unpacking of the source files.</p>
+		<p>But first, we'll make the directories we need and set permissions.</p>
+		<p>The username entered in the chown command will differ depending on environment.</p>
+		<div id='code'>
+			<xmp>
+			sudo mkdir /opt/hadoop
+			sudo mkdir /opt/hive
+			sudo mkdir /opt/spark
+			sudo chown -R user:user /opt/hadoop
+			sudo chown -R user:user /opt/hive
+			sudo chown -R user:user /opt/spark
+			mkdir ~/sources/hadoop
+			mkdir ~/sources/hive
+			mkdir ~/sources/spark
+			cd ~/sources/hadoop
+			wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.4/hadoop-3.3.4.tar.gz
+			tar -xvf (file) -C /opt/hadoop --strip-components=1
+			cd ~/sources/hive
+			wget https://dlcdn.apache.org/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz
+			tar -xvf (file) -C /opt/hive --strip-components=1
+			cd ~/sources/spark
+			wget https://www.apache.org/dyn/closer.lua/spark/spark-3.3.0/spark-3.3.0-bin-hadoop3.tgz
+			tar -xvf (file) -C /opt/spark --strip-components=1
+			</xmp>
+			<br>
+
+			<p>Let's switch to the /opt/hadoop directory and begin configuration.</p>
+			<p>This step is a little tedious; however once finished there is little</p>
+			<p>in the way of starting the Hadoop file system.</p>
+			<p>Most of the work is done in $HADOOP_HOME/etc/hadoop. The files that need configuring</p>
+			<p>will be found there.</p>
+
+			<pre><xmp>
+			cd $HADOOP_HOME/etc/hadoop
+			vim hadoop-env.sh
+				export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+				:wq
+			** All <property> tags within <configuration> tags
+			vim core-site.xml
+				<property>
+					<name>fs.defaultFS</name>
+					<value>hdfs://localhost:9000</value>
+				</property>
+			vim hdfs-site.xml
+				<property>
+					<name>dfs.replication</name>
+					<value>1</value>
+				</property>
+			vim mapred-site.xml
+				<property>
+					<name>mapreduce.framework.name</name>
+					<value>yarn</value>
+				</property>
+
+				<property>
+					<name>mapreduce.application.classpath</name>
+					<value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+				</property>
+			vim yarn-site.xml
+				<property>
+					<name>yarn.nodemanager.aux-services</name>
+					<value>mapreduce_shuffle</value>
+				</property>
+				<property>
+					<name>yarn.nodemanager.env-whitelist</name>
+					<value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+				</property>
+
+			cd ../..
+			bin/hdfs namenode -format
+			</textarea></xmp>
+			<p>Assuming everything went well, we can use the startdfs command.</p>
+			<p>Use the jps command the check status of applications.</p>
+			<p>After executing startdfs, the running processes should be:</p>
+			<p>NameNode</p>
+			<p>DataNode</p>
+			<p>SecondaryNameNode</p>
+			<br>
+			<p><b>Hadoop works!</b></p>
+			<p><b>Next up: Apache <a style='color:skyblue' href='hivesetup.html'>Hive</a></b><p>
+
+		</div>
+
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+	<title>xcat</title>
+	<meta charset='UTF=8'>
+	<link rel='stylesheet' href='styles.css'>
+	<link rel='icon' type='image/x-icon' href='images/favicon_a.ico'>
+</head>
+
+<body>
+
+	<div class='guides'>
+		<p>Setting up Apache Hive is relatively simple provided Hadoop is installed.</p>
+		<p>We will unzip the source tarball into /opt/hive. All that is required next</p>
+		<p>ensure that .bashrc is set properly (both of those steps are completed if </p>
+		<p>the hadoop instructions were followed) and then initialize the database.</p>
+		<pre>
+			cd $HIVE_HOME
+			schematool -dbType derby -initSchema			
+		</pre>
+		<p>And that's it! If schematool initialized correctly, Hive is up and running.</p>
+		<p>There is, of course, much more advanced configuration that could be done.</p>
+		<p>However, for the purposes of this tutorial, that is all we need.</p>
+		<p>Hive can be connected to using beeline:</p>
+		<pre>
+			beeline -u jdbc:hive2://
+		</pre>
+
+		<p><b>Up Next: Apache <a style='color:skyblue' href='sparksetup.html'>Spark</a></b></p>
+	</div>
+
+</body>
+</html>
