@@ -1,0 +1,73 @@
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+main {
+    color: blue;
+    z-index: 99;
+    position: absolute;
+    width: 100%;
+    margin: 0px auto;
+    padding: 120px 0px;
+
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+}
+
+section {
+    grid-column: 2 / 8;
+    padding: 1rem;
+    background: var(--dark-bg);
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: var(--spacing);
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: navajowhite;
+}
+
+.list {
+    list-style-type: none;
+}
+
+.hidden {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translateX(-100%);
+    transition: all 1.25s;
+}
+
+.hidden:nth-child(2) {
+    transition-delay: 200ms;
+}
+.hidden:nth-child(3) {
+    transition-delay: 400ms;
+}
+.hidden:nth-child(4) {
+    transition-delay: 600ms;
+}
+.hidden:nth-child(5) {
+    transition-delay: 750ms;
+}
+.hidden:nth-child(6) {
+    transition-delay: 900ms;
+}
+.hidden:nth-child(7) {
+    transition-delay: 1050ms;
+}
+.hidden:nth-child(8) {
+    transition-delay: 1200ms;
+}
+
+.show {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+}
